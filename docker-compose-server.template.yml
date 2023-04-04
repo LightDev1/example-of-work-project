@@ -1,0 +1,31 @@
+version: '3'
+networks:
+  elk:
+    external: true
+services:
+  project_redis:
+    container_name: project_redis
+    image: bitnami/redis:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_HOST=project_redis
+      - REDIS_PORT=6379
+    networks:
+      - elk
+    ports:
+      - 6370:6379
+
+  project_server:
+    container_name: project_server
+    restart: always
+    image: ${BACKEND_IMAGE}
+    depends_on:
+      - project_redis
+    user: '33:33'
+    ports:
+      - 8225:3001
+    environment:
+      - REDIS_HOST=project_redis
+      - REDIS_PORT=6379
+    networks:
+      - elk
